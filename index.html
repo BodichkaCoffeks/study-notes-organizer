@@ -32,95 +32,205 @@
         </ul>
       </nav>
     </header>
-
-    <main>
-      <form action="search">
-        <label for="search-note">Пошук конспекту за назвою:</label>
-        <input
-          type="search"
-          id="search-note"
-          placeholder="Наприклад: Квадратична..."
-        />
-      </form>
-
-      <section id="algebra">
-        <h2>Алгебра</h2>
-        <article class="card">
-          <img
-            src="assets/img/kvadratychna-funktsiya.jpg"
-            alt="Квадратична функція"
+    <div class="container">
+      <main>
+        <form action="search">
+          <label for="search-note">Пошук конспекту за назвою:</label>
+          <input
+            type="search"
+            id="search-note"
+            placeholder="Наприклад: Квадратична..."
           />
-          <h3>Квадратична функція</h3>
-          <p>
-            Основні властивості квадратичної функції, парабола та її вершина
-          </p>
-        </article>
-      </section>
+        </form>
 
-      <section id="geometry">
-        <h2>Геометрія</h2>
-        <article class="card">
-          <img src="assets/img/teorema-pifagora.png" alt="Теорема піфагора" />
-          <h3>Теорема Піфагора</h3>
-          <p>
-            У прямокутному трикутнику квадрат гіпотенузи дорівнює сумі квадратів
-            катетів
-          </p>
-        </article>
-      </section>
+        <section id="algebra">
+          <h2>Алгебра</h2>
+          <div class="cards">
+            <article class="card">
+              <img
+                src="assets/img/kvadratychna-funktsiya.jpg"
+                alt="Квадратична функція"
+              />
+              <h3>Квадратична функція</h3>
+              <p>
+                Основні властивості квадратичної функції, парабола та її вершина
+              </p>
+            </article>
+            <article class="card">
+              <img
+                src="assets/img/pokaznykovi.png"
+                alt="Показникові рівняння"
+              />
+              <h3>Показникові рівняння</h3>
+              <p>
+                Методи розв'язування показникових рівнянь та систем, зведення до
+                спільній основи.
+              </p>
+            </article>
+            <article class="card">
+              <img src="assets/img/pohidna.png" alt="Похідна функції" />
+              <h3>Похідна функції</h3>
+              <p>
+                Геометричний та фізичний зміст похідної, правила
+                диференціювання.
+              </p>
+            </article>
+          </div>
+        </section>
 
-      <section id="physics">
-        <h2>Фізика</h2>
-        <article class="card">
-          <img src="assets/img/zakon-nyutona.png" alt="Закон Ньютона" />
-          <h3>Закони Ньютона</h3>
-          <p>Основи класичної механіки: інерція, сила та протидія</p>
-        </article>
-      </section>
+        <section id="geometry">
+          <h2>Геометрія</h2>
+          <div class="cards">
+            <article class="card">
+              <img
+                src="assets/img/teorema-pifagora.png"
+                alt="Теорема піфагора"
+              />
+              <h3>Теорема Піфагора</h3>
+              <p>
+                У прямокутному трикутнику квадрат гіпотенузи дорівнює сумі
+                квадратів катетів
+              </p>
+            </article>
+            <article class="card">
+              <img src="assets/img/vectory.png" alt="Вектори у просторі" />
+              <h3>Вектори у просторі</h3>
+              <p>
+                Операції над векторами, скалярний добуток та кут між векторами.
+              </p>
+            </article>
 
-      <section id="chemistry">
-        <h2>Хімія</h2>
-        <article class="card">
-          <img
-            src="assets/img/periodichnyy-zakon-mendeleyeva.png"
-            alt="Періодичний закон Менделєєва"
-          />
-          <h3>Періодичний закон Менделєєва</h3>
-          <p>
-            Будова періодичної системи елементів та періодичність їхніх
-            властивостей
-          </p>
-        </article>
-      </section>
+            <article class="card">
+              <img
+                src="assets/img/ploski-fihyru.png"
+                alt="Площі плоских фігур"
+              />
+              <h3>Площі плоских фігур</h3>
+              <p>
+                Формули обчислення площі трикутника, паралелограма, трапеції та
+                круга.
+              </p>
+            </article>
+          </div>
+        </section>
 
-      <section id="english">
-        <h2>Англійська мова</h2>
-        <article class="card">
-          <img src="assets/img/present_simple.png" alt="Present Simple" />
-          <h3>Present Simple</h3>
-          <p>
-            Теперішній простий час для вираження регулярних та постійних дій
-          </p>
-        </article>
-      </section>
+        <section id="physics">
+          <h2>Фізика</h2>
+          <div class="cards">
+            <article class="card">
+              <img src="assets/img/zakon-nyutona.png" alt="Закон Ньютона" />
+              <h3>Закони Ньютона</h3>
+              <p>Основи класичної механіки: інерція, сила та протидія</p>
+            </article>
 
-      <section id="geography">
-        <h2>Географія</h2>
-        <article class="card">
-          <img src="assets/img/hory.jpg" alt="Гори" />
-          <h3>Гори</h3>
-          <p>
-            Процеси утворення гірських систем, класифікація гір за висотою та
-            віком
-          </p>
-        </article>
-      </section>
-    </main>
+            <article class="card">
+              <img src="assets/img/zakon-oma.png" alt="Закон Ома" />
+              <h3>Закон Ома для ділянки кола</h3>
+              <p>Залежність сили струму від напруги та опору провідника.</p>
+            </article>
 
-    <aside>
-      <h2>Перегляд обраного конспекту</h2>
-      <p>Оберіть конспект зі списку, щоб прочитати повний текст</p>
-    </aside>
+            <article class="card">
+              <img src="assets/img/mkt.png" alt="Молекулярна фізика" />
+              <h3>Основне рівняння МКТ</h3>
+              <p>
+                Молекулярно-кінетична теорія, тиск і температура ідеального
+                газу.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="chemistry">
+          <h2>Хімія</h2>
+          <div class="cards">
+            <article class="card">
+              <img
+                src="assets/img/periodichnyy-zakon-mendeleyeva.png"
+                alt="Періодичний закон Менделєєва"
+              />
+              <h3>Періодичний закон Менделєєва</h3>
+              <p>
+                Будова періодичної системи елементів та періодичність їхніх
+                властивостей
+              </p>
+            </article>
+
+            <article class="card">
+              <img
+                src="assets/img/reaction.png"
+                alt="Окисно-відновні реакції"
+              />
+              <h3>Окисно-відновні реакції</h3>
+              <p>
+                Процеси окиснення та відновлення, електронний баланс реакцій.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="english">
+          <h2>Англійська мова</h2>
+          <div class="cards">
+            <article class="card">
+              <img src="assets/img/present_simple.png" alt="Present Simple" />
+              <h3>Present Simple</h3>
+              <p>
+                Теперішній простий час для вираження регулярних та постійних дій
+              </p>
+            </article>
+
+            <article class="card">
+              <img src="assets/img/passive-voice.png" alt="Passive Voice" />
+              <h3>Passive Voice</h3>
+              <p>
+                Утворення та використання пасивного стану в різних часових
+                формах.
+              </p>
+            </article>
+
+            <article class="card">
+              <img src="assets/img/modal-verbs.png" alt="Modal Verbs" />
+              <h3>Modal Verbs</h3>
+              <p>
+                Модальні дієслова must, should, can, may та особливості їхнього
+                вживання.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section id="geography">
+          <h2>Географія</h2>
+          <div class="cards">
+            <article class="card">
+              <img src="assets/img/hory.jpg" alt="Гори" />
+              <h3>Гори</h3>
+              <p>
+                Процеси утворення гірських систем, класифікація гір за висотою
+                та віком
+              </p>
+            </article>
+
+            <article class="card">
+              <img
+                src="assets/img/climatychni-poyasy.jpg"
+                alt="Кліматичні пояси"
+              />
+              <h3>Кліматичні пояси Землі</h3>
+              <p>
+                Характеристика основних та перехідних кліматичних поясів
+                планети.
+              </p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <aside>
+        <h2>Перегляд обраного конспекту</h2>
+        <p>Оберіть конспект зі списку, щоб прочитати повний текст</p>
+      </aside>
+    </div>
     <footer>
       <p>
         ©Виконав студент групи ІП-53 Маліков Богдан. Цей проєкт призначений для
