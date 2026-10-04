@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Органайзер конспектів</title>
     <link rel="stylesheet" href="css/style.css" />
+    <script src="js/app.js" defer></script>
   </head>
   <body>
     <header>
@@ -45,7 +46,7 @@
 
         <section id="algebra">
           <h2>Алгебра</h2>
-          <div class="cards">
+          <div class="cards" id="notes-list">
             <article class="card">
               <img
                 src="assets/img/kvadratychna-funktsiya.jpg"
@@ -229,6 +230,7 @@
       <aside>
         <h2>Перегляд обраного конспекту</h2>
         <p>Оберіть конспект зі списку, щоб прочитати повний текст</p>
+        <p id="notes-count">Доданих конспктів: 0</p>
       </aside>
     </div>
     <footer>
