@@ -39,6 +39,7 @@ const counts = {};
 const exam_soom = [];
 //Функція для підрахунку кількості конспектів та кількості предметів, з яких скоро буде екзамен
 function checkEachSubjext() {
+  let j = 0;
   // Цикл for підраховує кількість конспектів по кожному предмету
   for (let i = 0; i < notes.length; i++) {
     const subjectName = notes[i].subject;
@@ -49,7 +50,6 @@ function checkEachSubjext() {
     } else {
       counts[subjectName] = 1;
     }
-    let j = 0;
     //Якщо скоро екзамен, тоді додаємо
     if (notes[i].examSoon) {
       exam_soom[j] = notes[i].subject;
