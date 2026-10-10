@@ -43,6 +43,35 @@
             placeholder="Наприклад: Квадратична..."
           />
         </form>
+        <form id="add-note-form">
+          <label for="subject">Предмет:</label>
+          <select id="subject" name="subject" required>
+            <option value="" disabled selected>Оберіть предмет</option>
+            <option value="Алгебра">Алгебра</option>
+            <option value="Історія">Історія</option>
+            <option value="Географія">Географія</option>
+            <option value="Фізика">Фізика</option>
+            <option value="Англійська мова">Англійська мова</option>
+            <option value="Хімія">Хімія</option>
+          </select>
+          <label for="topic">Тема:</label>
+          <input
+            type="text"
+            id="topic"
+            name="topic"
+            required
+            pattern=".{3,}"
+            title="Тема має містити щонайменше 3 символи"
+            placeholder="Квадратичні рівняння"
+          />
+          <label for="pages">Кількість сторінок:</label>
+          <input type="number" id="pages" name="pages" required min="1" />
+          <label>
+            <input type="checkbox" id="examSoon" name="examSoon" />
+            Скоро іспит
+          </label>
+          <button type="submit">Додати конспект</button>
+        </form>
 
         <section id="algebra">
           <h2>Алгебра</h2>

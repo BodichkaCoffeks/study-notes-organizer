@@ -39,6 +39,7 @@
 // const exam_soom = [];
 // //Функція для підрахунку кількості конспектів та кількості предметів, з яких скоро буде екзамен
 // function checkEachSubjext() {
+//  let j = 0;
 //   // Цикл for підраховує кількість конспектів по кожному предмету
 //   for (let i = 0; i < notes.length; i++) {
 //     const subjectName = notes[i].subject;
@@ -49,7 +50,6 @@
 //     } else {
 //       counts[subjectName] = 1;
 //     }
-//     let j = 0;
 //     //Якщо скоро екзамен, тоді додаємо
 //     if (notes[i].examSoon) {
 //       exam_soom[j] = notes[i].subject;
@@ -78,11 +78,7 @@ if (subject) {
   subject.remove();
 }
 
-const notesData = [
-  { topic: "Логарифм", subject: "Алгебра", examSoon: true },
-  { topic: "Показникові нерівності", subject: "Алгера", examSoon: true },
-  { topic: "Рівняння з параметром", subject: "Алгебра", examSoon: true },
-];
+const notesData = [];
 
 const listContainer = document.querySelector("#notes-list");
 
@@ -94,14 +90,30 @@ const renderCard = (array) => {
     const cardElement = document.createElement("article");
     const titleElement = document.createElement("h3");
     const subjectElement = document.createElement("p");
+    const pagesElement = document.createElement("p");
+
     titleElement.textContent = note.topic;
     subjectElement.textContent = note.subject;
+    pagesElement.textContent = note.pages;
+
+    const checkboxElement = document.createElement("input");
+    checkboxElement.type = "checkbox";
+    checkboxElement.checked = note.examSoon;
+    checkboxElement.classList.add("exam-checkbox");
+
     cardElement.classList.add("card");
-    cardElement.dataset.subject = note.subject;
+    cardElement.dataset.index = i;
+
     if (note.examSoon) {
       cardElement.classList.add("exam-soon");
     }
-    cardElement.append(titleElement, subjectElement);
+
+    cardElement.append(
+      titleElement,
+      subjectElement,
+      pagesElement,
+      checkboxElement,
+    );
     listContainer.append(cardElement);
   }
 };
@@ -111,3 +123,55 @@ const notesCountElement = document.querySelector("#notes-count");
 if (notesCountElement) {
   notesCountElement.textContent = `Усього конспектів: ${notesData.length}`;
 }
+
+// Обробник відправки форми: збирає дані з полів, створює новий об'єкт конспекту, додає його до масиву, оновлює інтерфейс і очищує форму
+const form = document.querySelector("#add-note-form");
+
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+  const subject = document.querySelector("#subject").value;
+  const topic = document.querySelector("#topic").value;
+  const pages = Number(document.querySelector("#pages").value);
+  const examSoon = document.querySelector("#examSoon").checked;
+  const newNote = {
+    subject: subject,
+    topic: topic,
+    pages: pages,
+    examSoon: examSoon,
+  };
+  notesData.push(newNote);
+  renderCard(notesData);
+  form.reset();
+});
+
+// Обробник введення тексту в поле теми: перевіряє довжину та наявність великої першої літери у реальному часі й виводить кастомні помилки валідації
+const topicInput = document.querySelector("#topic");
+topicInput.addEventListener("input", () => {
+  const value = topicInput.value;
+  console.log(value);
+  if (value.length > 0 && value.length < 3) {
+    topicInput.setCustomValidity("Тема повинна містити щонайменше 3 символи!");
+  } else if (value.length >= 3 && value[0] !== value[0].toUpperCase()) {
+    topicInput.setCustomValidity("Перша літера теми має бути великою!");
+  } else {
+    topicInput.setCustomValidity("");
+  }
+});
+
+// Обробник зміни стану чекбокса (делегування подій): оновлює стан examSoon у масиві та перемикає візуальний клас картки
+listContainer.addEventListener("change", (event) => {
+  if (event.target.classList.contains("exam-checkbox")) {
+    const card = event.target.closest(".card");
+    if (!card || card.dataset.index === undefined) return;
+
+    const index = Number(card.dataset.index);
+
+    notesData[index].examSoon = event.target.checked;
+    if (event.target.checked) {
+      card.classList.add("exam-soon");
+    } else {
+      card.classList.remove("exam-soon");
+    }
+    console.log("Оновлений масив notesData:", notesData);
+  }
+});
