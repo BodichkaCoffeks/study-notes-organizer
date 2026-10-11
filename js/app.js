@@ -39,7 +39,7 @@
 // const exam_soom = [];
 // //Функція для підрахунку кількості конспектів та кількості предметів, з яких скоро буде екзамен
 // function checkEachSubjext() {
-//  let j = 0;
+//   let j = 0;
 //   // Цикл for підраховує кількість конспектів по кожному предмету
 //   for (let i = 0; i < notes.length; i++) {
 //     const subjectName = notes[i].subject;
@@ -60,7 +60,6 @@
 //       continue;
 //     }
 //   }
-
 //   console.log("Кількість конспектів по кожному предмету:", counts);
 //   console.log("Предмети, з яких скоро буде екзамен:", exam_soom);
 // }
@@ -85,6 +84,11 @@ const listContainer = document.querySelector("#notes-list");
 //Функція рендеру бере об'єкт з масиву даних, на його основі створює h3 та p та вже їх
 //додає у тег article, який після цього додається у контейнер та відображається на сторінці
 const renderCard = (array) => {
+  // Видаляємо тільки динамічні картки (з класом user-card)
+  listContainer
+    .querySelectorAll(".card.user-card")
+    .forEach((card) => card.remove());
+
   for (let i = 0; i < array.length; i++) {
     const note = array[i];
     const cardElement = document.createElement("article");
@@ -101,7 +105,8 @@ const renderCard = (array) => {
     checkboxElement.checked = note.examSoon;
     checkboxElement.classList.add("exam-checkbox");
 
-    cardElement.classList.add("card");
+    // Додаємо і "card", і "user-card"
+    cardElement.classList.add("card", "user-card");
     cardElement.dataset.index = i;
 
     if (note.examSoon) {
@@ -114,6 +119,7 @@ const renderCard = (array) => {
       pagesElement,
       checkboxElement,
     );
+
     listContainer.append(cardElement);
   }
 };
