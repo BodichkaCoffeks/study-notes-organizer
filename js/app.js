@@ -60,7 +60,6 @@ function checkEachSubjext() {
       continue;
     }
   }
-
   console.log("Кількість конспектів по кожному предмету:", counts);
   console.log("Предмети, з яких скоро буде екзамен:", exam_soom);
 }
