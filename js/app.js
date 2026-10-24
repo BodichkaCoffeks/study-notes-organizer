@@ -1,3 +1,5 @@
+const API_URL = "https://jsonplaceholder.typicode.com/posts?userId=2";
+
 // console.log("JS підключено!");
 // const notes = [
 //   {
@@ -72,17 +74,17 @@
 // );
 // checkEachSubjext();
 
-const subject = document.querySelector("#notes-list .card");
-if (subject) {
-  subject.remove();
-}
+// const subject = document.querySelector("#notes-list .card");
+// if (subject) {
+//   subject.remove();
+// }
 
-const notesData = [];
+// const notesData = [];
 
 const listContainer = document.querySelector("#notes-list");
 
-//Функція рендеру бере об'єкт з масиву даних, на його основі створює h3 та p та вже їх
-//додає у тег article, який після цього додається у контейнер та відображається на сторінці
+// //Функція рендеру бере об'єкт з масиву даних, на його основі створює h3 та p та вже їх
+// //додає у тег article, який після цього додається у контейнер та відображається на сторінці
 const renderCard = (array) => {
   // Видаляємо тільки динамічні картки (з класом user-card)
   listContainer
@@ -94,16 +96,16 @@ const renderCard = (array) => {
     const cardElement = document.createElement("article");
     const titleElement = document.createElement("h3");
     const subjectElement = document.createElement("p");
-    const pagesElement = document.createElement("p");
+    // const pagesElement = document.createElement("p"); немає у JSON
 
-    titleElement.textContent = note.topic;
-    subjectElement.textContent = note.subject;
-    pagesElement.textContent = note.pages;
+    titleElement.textContent = note.title;
+    subjectElement.textContent = note.body;
+    // pagesElement.textContent = note.pages; немає у JSON
 
-    const checkboxElement = document.createElement("input");
-    checkboxElement.type = "checkbox";
-    checkboxElement.checked = note.examSoon;
-    checkboxElement.classList.add("exam-checkbox");
+    // const checkboxElement = document.createElement("input");
+    // checkboxElement.type = "checkbox";
+    // checkboxElement.checked = note.examSoon;
+    // checkboxElement.classList.add("exam-checkbox"); чекбоксу немає у JSON
 
     // Додаємо і "card", і "user-card"
     cardElement.classList.add("card", "user-card");
@@ -116,68 +118,97 @@ const renderCard = (array) => {
     cardElement.append(
       titleElement,
       subjectElement,
-      pagesElement,
-      checkboxElement,
+      // pagesElement,
+      // checkboxElement, немає у JSON
     );
 
     listContainer.append(cardElement);
   }
 };
 
-renderCard(notesData);
-const notesCountElement = document.querySelector("#notes-count");
-if (notesCountElement) {
-  notesCountElement.textContent = `Усього конспектів: ${notesData.length}`;
-}
+// renderCard(notesData);
+// const notesCountElement = document.querySelector("#notes-count");
+// if (notesCountElement) {
+//   notesCountElement.textContent = `Усього конспектів: ${notesData.length}`;
+// }
 
-// Обробник відправки форми: збирає дані з полів, створює новий об'єкт конспекту, додає його до масиву, оновлює інтерфейс і очищує форму
-const form = document.querySelector("#add-note-form");
+// // Обробник відправки форми: збирає дані з полів, створює новий об'єкт конспекту, додає його до масиву, оновлює інтерфейс і очищує форму
+// const form = document.querySelector("#add-note-form");
 
-form.addEventListener("submit", function (event) {
-  event.preventDefault();
-  const subject = document.querySelector("#subject").value;
-  const topic = document.querySelector("#topic").value;
-  const pages = Number(document.querySelector("#pages").value);
-  const examSoon = document.querySelector("#examSoon").checked;
-  const newNote = {
-    subject: subject,
-    topic: topic,
-    pages: pages,
-    examSoon: examSoon,
-  };
-  notesData.push(newNote);
-  renderCard(notesData);
-  form.reset();
-});
+// form.addEventListener("submit", function (event) {
+//   event.preventDefault();
+//   const subject = document.querySelector("#subject").value;
+//   const topic = document.querySelector("#topic").value;
+//   const pages = Number(document.querySelector("#pages").value);
+//   const examSoon = document.querySelector("#examSoon").checked;
+//   const newNote = {
+//     subject: subject,
+//     topic: topic,
+//     pages: pages,
+//     examSoon: examSoon,
+//   };
+//   notesData.push(newNote);
+//   renderCard(notesData);
+//   form.reset();
+// });
 
-// Обробник введення тексту в поле теми: перевіряє довжину та наявність великої першої літери у реальному часі й виводить кастомні помилки валідації
-const topicInput = document.querySelector("#topic");
-topicInput.addEventListener("input", () => {
-  const value = topicInput.value;
-  console.log(value);
-  if (value.length > 0 && value.length < 3) {
-    topicInput.setCustomValidity("Тема повинна містити щонайменше 3 символи!");
-  } else if (value.length >= 3 && value[0] !== value[0].toUpperCase()) {
-    topicInput.setCustomValidity("Перша літера теми має бути великою!");
-  } else {
-    topicInput.setCustomValidity("");
-  }
-});
+// // Обробник введення тексту в поле теми: перевіряє довжину та наявність великої першої літери у реальному часі й виводить кастомні помилки валідації
+// const topicInput = document.querySelector("#topic");
+// topicInput.addEventListener("input", () => {
+//   const value = topicInput.value;
+//   console.log(value);
+//   if (value.length > 0 && value.length < 3) {
+//     topicInput.setCustomValidity("Тема повинна містити щонайменше 3 символи!");
+//   } else if (value.length >= 3 && value[0] !== value[0].toUpperCase()) {
+//     topicInput.setCustomValidity("Перша літера теми має бути великою!");
+//   } else {
+//     topicInput.setCustomValidity("");
+//   }
+// });
 
-// Обробник зміни стану чекбокса (делегування подій): оновлює стан examSoon у масиві та перемикає візуальний клас картки
-listContainer.addEventListener("change", (event) => {
-  if (event.target.classList.contains("exam-checkbox")) {
-    const card = event.target.closest(".card");
-    if (!card || card.dataset.index === undefined) return;
+// // Обробник зміни стану чекбокса (делегування подій): оновлює стан examSoon у масиві та перемикає візуальний клас картки
+// listContainer.addEventListener("change", (event) => {
+//   if (event.target.classList.contains("exam-checkbox")) {
+//     const card = event.target.closest(".card");
+//     if (!card || card.dataset.index === undefined) return;
 
-    const index = Number(card.dataset.index);
+//     const index = Number(card.dataset.index);
 
-    notesData[index].examSoon = event.target.checked;
-    if (event.target.checked) {
-      card.classList.add("exam-soon");
-    } else {
-      card.classList.remove("exam-soon");
+//     notesData[index].examSoon = event.target.checked;
+//     if (event.target.checked) {
+//       card.classList.add("exam-soon");
+//     } else {
+//       card.classList.remove("exam-soon");
+//     }
+//     console.log("Оновлений масив notesData:", notesData);
+//   }
+// });
+
+//  Завантаження конспектів для навчання (Варіант 16)
+//  API: https://jsonplaceholder.typicode.com/posts?userId=2
+
+const loadButton = document.querySelector("#refresh-btn");
+loadButton.addEventListener("click", loadData);
+async function loadData() {
+  const errorElement = document.querySelector("#error-message");
+  const loadingElement = document.querySelector("#loading");
+  errorElement.textContent = "";
+  loadingElement.style.display = "inline-block";
+  loadButton.disabled = true;
+
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) {
+      throw new Error(`Помилка HTTP: ${response.status}`);
     }
-    console.log("Оновлений масив notesData:", notesData);
+    const data = await response.json();
+    console.log("Отримані дані з API:", data);
+    renderCard(data);
+  } catch (error) {
+    errorElement.textContent = "Конспекти тимчасово недоступні";
+    console.error("Технічні деталі помилки для розробника:", error);
+  } finally {
+    loadingElement.style.display = "none";
+    loadButton.disabled = false;
   }
-});
+}

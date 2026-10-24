@@ -35,6 +35,15 @@
     </header>
     <div class="container">
       <main>
+        <div class="api-controls">
+          <button id="refresh-btn" type="button">
+            Оновити конспекти з API
+          </button>
+          <span id="loading" class="loading-text" style="display: none"
+            >Завантаження...</span
+          >
+          <div id="error-message" class="error-message"></div>
+        </div>
         <form action="search">
           <label for="search-note">Пошук конспекту за назвою:</label>
           <input
