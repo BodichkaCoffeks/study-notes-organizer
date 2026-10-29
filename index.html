@@ -1,3 +1,4 @@
+<!-- Вибір на користь React зумовлений його гнучкою компонентною архітектурою, потужною екосистемою та універсальністю для побудови сучасних інтерактивних інтерфейсів. -->
 <!doctype html>
 <html lang="uk">
   <head>
@@ -5,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Органайзер конспектів</title>
     <link rel="stylesheet" href="css/style.css" />
-    <script src="js/app.js" defer></script>
   </head>
   <body>
     <header>
@@ -33,6 +33,7 @@
         </ul>
       </nav>
     </header>
+
     <div class="container">
       <main>
         <div class="api-controls">
@@ -44,6 +45,7 @@
           >
           <div id="error-message" class="error-message"></div>
         </div>
+
         <form action="search">
           <label for="search-note">Пошук конспекту за назвою:</label>
           <input
@@ -52,6 +54,7 @@
             placeholder="Наприклад: Квадратична..."
           />
         </form>
+
         <form id="add-note-form">
           <label for="subject">Предмет:</label>
           <select id="subject" name="subject" required>
@@ -84,37 +87,7 @@
 
         <section id="algebra">
           <h2>Алгебра</h2>
-          <div class="cards" id="notes-list">
-            <article class="card">
-              <img
-                src="assets/img/kvadratychna-funktsiya.jpg"
-                alt="Квадратична функція"
-              />
-              <h3>Квадратична функція</h3>
-              <p>
-                Основні властивості квадратичної функції, парабола та її вершина
-              </p>
-            </article>
-            <article class="card">
-              <img
-                src="assets/img/pokaznykovi.png"
-                alt="Показникові рівняння"
-              />
-              <h3>Показникові рівняння</h3>
-              <p>
-                Методи розв'язування показникових рівнянь та систем, зведення до
-                спільній основи.
-              </p>
-            </article>
-            <article class="card">
-              <img src="assets/img/pohidna.png" alt="Похідна функції" />
-              <h3>Похідна функції</h3>
-              <p>
-                Геометричний та фізичний зміст похідної, правила
-                диференціювання.
-              </p>
-            </article>
-          </div>
+          <div class="cards" id="notes-list"></div>
         </section>
 
         <section id="geometry">
@@ -138,7 +111,6 @@
                 Операції над векторами, скалярний добуток та кут між векторами.
               </p>
             </article>
-
             <article class="card">
               <img
                 src="assets/img/ploski-fihyru.png"
@@ -161,13 +133,11 @@
               <h3>Закони Ньютона</h3>
               <p>Основи класичної механіки: інерція, сила та протидія</p>
             </article>
-
             <article class="card">
               <img src="assets/img/zakon-oma.png" alt="Закон Ома" />
               <h3>Закон Ома для ділянки кола</h3>
               <p>Залежність сили струму від напруги та опору провідника.</p>
             </article>
-
             <article class="card">
               <img src="assets/img/mkt.png" alt="Молекулярна фізика" />
               <h3>Основне рівняння МКТ</h3>
@@ -193,7 +163,6 @@
                 властивостей
               </p>
             </article>
-
             <article class="card">
               <img
                 src="assets/img/reaction.png"
@@ -217,7 +186,6 @@
                 Теперішній простий час для вираження регулярних та постійних дій
               </p>
             </article>
-
             <article class="card">
               <img src="assets/img/passive-voice.png" alt="Passive Voice" />
               <h3>Passive Voice</h3>
@@ -226,7 +194,6 @@
                 формах.
               </p>
             </article>
-
             <article class="card">
               <img src="assets/img/modal-verbs.png" alt="Modal Verbs" />
               <h3>Modal Verbs</h3>
@@ -249,7 +216,6 @@
                 та віком
               </p>
             </article>
-
             <article class="card">
               <img
                 src="assets/img/climatychni-poyasy.jpg"
@@ -271,11 +237,147 @@
         <p id="notes-count">Доданих конспктів: 0</p>
       </aside>
     </div>
+
     <footer>
       <p>
         ©Виконав студент групи ІП-53 Маліков Богдан. Цей проєкт призначений для
         того, щоб організовувати конспекти.
       </p>
     </footer>
+
+    <script
+      src="https://unpkg.com/react@18/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      const NotesSummary = ({ id, title, body, learned, onToggle }) => {
+        return (
+          <article
+            className="card"
+            onClick={() => onToggle(id)}
+            style={{
+              cursor: "pointer",
+              border: learned ? "2px solid #28a745" : "1px solid #ddd",
+              backgroundColor: learned ? "#f8fff9" : "#fff",
+            }}
+          >
+            <h3>
+              {title} {learned ? "✅" : ""}
+            </h3>
+            <p>{body}</p>
+          </article>
+        );
+      };
+
+      const App = () => {
+        const [notesData, setNotesData] = useState([]);
+
+        const toggleLearned = (id) => {
+          setNotesData((prevData) =>
+            prevData.map((note) =>
+              note.id === id ? { ...note, learned: !note.learned } : note,
+            ),
+          );
+        };
+
+        const loadData = async () => {
+          const loadingEl = document.getElementById("loading");
+          const errorEl = document.getElementById("error-message");
+
+          if (loadingEl) loadingEl.style.display = "inline";
+          if (errorEl) errorEl.textContent = "";
+
+          try {
+            const response = await fetch(
+              "https://jsonplaceholder.typicode.com/posts?userId=2",
+            );
+            if (!response.ok)
+              throw new Error("Помилка мережі при завантаженні");
+
+            const data = await response.json();
+
+            const formattedData = data.map((item) => ({
+              ...item,
+              learned: false,
+            }));
+
+            setNotesData(formattedData);
+          } catch (error) {
+            console.error("Помилка:", error);
+            if (errorEl)
+              errorEl.textContent =
+                "Не вдалося завантажити конспекти. Спробуйте пізніше.";
+          } finally {
+            if (loadingEl) loadingEl.style.display = "none";
+          }
+        };
+
+        useEffect(() => {
+          const refreshBtn = document.getElementById("refresh-btn");
+          if (refreshBtn) {
+            refreshBtn.onclick = loadData;
+          }
+        }, []);
+
+        return (
+          <React.Fragment>
+            <article className="card">
+              <img
+                src="assets/img/kvadratychna-funktsiya.jpg"
+                alt="Квадратична функція"
+              />
+              <h3>Квадратична функція</h3>
+              <p>
+                Основні властивості квадратичної функції, парабола та її вершина
+              </p>
+            </article>
+            <article className="card">
+              <img
+                src="assets/img/pokaznykovi.png"
+                alt="Показникові рівняння"
+              />
+              <h3>Показникові рівняння</h3>
+              <p>
+                Методи розв'язування показникових рівнянь та систем, зведення до
+                спільної основи.
+              </p>
+            </article>
+            <article className="card">
+              <img src="assets/img/pohidna.png" alt="Похідна функції" />
+              <h3>Похідна функції</h3>
+              <p>
+                Геометричний та фізичний зміст похідної, правила
+                диференціювання.
+              </p>
+            </article>
+
+            {notesData.map((note) => (
+              <NotesSummary
+                key={note.id}
+                id={note.id}
+                title={note.title}
+                body={note.body}
+                learned={note.learned}
+                onToggle={toggleLearned}
+              />
+            ))}
+          </React.Fragment>
+        );
+      };
+
+      const container = document.getElementById("notes-list");
+      if (container) {
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+      }
+    </script>
   </body>
 </html>

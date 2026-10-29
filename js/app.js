@@ -81,50 +81,52 @@ const API_URL = "https://jsonplaceholder.typicode.com/posts?userId=2";
 
 // const notesData = [];
 
-const listContainer = document.querySelector("#notes-list");
+// const listContainer = document.querySelector("#notes-list");
 
 // //Функція рендеру бере об'єкт з масиву даних, на його основі створює h3 та p та вже їх
 // //додає у тег article, який після цього додається у контейнер та відображається на сторінці
-const renderCard = (array) => {
-  // Видаляємо тільки динамічні картки (з класом user-card)
-  listContainer
-    .querySelectorAll(".card.user-card")
-    .forEach((card) => card.remove());
 
-  for (let i = 0; i < array.length; i++) {
-    const note = array[i];
-    const cardElement = document.createElement("article");
-    const titleElement = document.createElement("h3");
-    const subjectElement = document.createElement("p");
-    // const pagesElement = document.createElement("p"); немає у JSON
+//Функції ручного рендеру повністю видалено,
+// оскільки їхню роботу тепер повністю виконує декларативний рендер через метод .map()
+//   // Видаляємо тільки динамічні картки (з класом user-card)
+//   listContainer
+//     .querySelectorAll(".card.user-card")
+//     .forEach((card) => card.remove());
 
-    titleElement.textContent = note.title;
-    subjectElement.textContent = note.body;
-    // pagesElement.textContent = note.pages; немає у JSON
+//   for (let i = 0; i < array.length; i++) {
+//     const note = array[i];
+//     const cardElement = document.createElement("article");
+//     const titleElement = document.createElement("h3");
+//     const subjectElement = document.createElement("p");
+//     // const pagesElement = document.createElement("p"); немає у JSON
 
-    // const checkboxElement = document.createElement("input");
-    // checkboxElement.type = "checkbox";
-    // checkboxElement.checked = note.examSoon;
-    // checkboxElement.classList.add("exam-checkbox"); чекбоксу немає у JSON
+//     titleElement.textContent = note.title;
+//     subjectElement.textContent = note.body;
+//     // pagesElement.textContent = note.pages; немає у JSON
 
-    // Додаємо і "card", і "user-card"
-    cardElement.classList.add("card", "user-card");
-    cardElement.dataset.index = i;
+//     // const checkboxElement = document.createElement("input");
+//     // checkboxElement.type = "checkbox";
+//     // checkboxElement.checked = note.examSoon;
+//     // checkboxElement.classList.add("exam-checkbox"); чекбоксу немає у JSON
 
-    if (note.examSoon) {
-      cardElement.classList.add("exam-soon");
-    }
+//     // Додаємо і "card", і "user-card"
+//     cardElement.classList.add("card", "user-card");
+//     cardElement.dataset.index = i;
 
-    cardElement.append(
-      titleElement,
-      subjectElement,
-      // pagesElement,
-      // checkboxElement, немає у JSON
-    );
+//     if (note.examSoon) {
+//       cardElement.classList.add("exam-soon");
+//     }
 
-    listContainer.append(cardElement);
-  }
-};
+//     cardElement.append(
+//       titleElement,
+//       subjectElement,
+//       // pagesElement,
+//       // checkboxElement, немає у JSON
+//     );
+
+//     listContainer.append(cardElement);
+//   }
+// };
 
 // renderCard(notesData);
 // const notesCountElement = document.querySelector("#notes-count");
@@ -187,28 +189,28 @@ const renderCard = (array) => {
 //  Завантаження конспектів для навчання (Варіант 16)
 //  API: https://jsonplaceholder.typicode.com/posts?userId=2
 
-const loadButton = document.querySelector("#refresh-btn");
-loadButton.addEventListener("click", loadData);
-async function loadData() {
-  const errorElement = document.querySelector("#error-message");
-  const loadingElement = document.querySelector("#loading");
-  errorElement.textContent = "";
-  loadingElement.style.display = "inline-block";
-  loadButton.disabled = true;
+// const loadButton = document.querySelector("#refresh-btn");
+// loadButton.addEventListener("click", loadData);
+// async function loadData() {
+//   const errorElement = document.querySelector("#error-message");
+//   const loadingElement = document.querySelector("#loading");
+//   errorElement.textContent = "";
+//   loadingElement.style.display = "inline-block";
+//   loadButton.disabled = true;
 
-  try {
-    const response = await fetch(API_URL);
-    if (!response.ok) {
-      throw new Error(`Помилка HTTP: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log("Отримані дані з API:", data);
-    renderCard(data);
-  } catch (error) {
-    errorElement.textContent = "Конспекти тимчасово недоступні";
-    console.error("Технічні деталі помилки для розробника:", error);
-  } finally {
-    loadingElement.style.display = "none";
-    loadButton.disabled = false;
-  }
-}
+//   try {
+//     const response = await fetch(API_URL);
+//     if (!response.ok) {
+//       throw new Error(`Помилка HTTP: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     console.log("Отримані дані з API:", data);
+//     renderCard(data);
+//   } catch (error) {
+//     errorElement.textContent = "Конспекти тимчасово недоступні";
+//     console.error("Технічні деталі помилки для розробника:", error);
+//   } finally {
+//     loadingElement.style.display = "none";
+//     loadButton.disabled = false;
+//   }
+// }
