@@ -1,4 +1,4 @@
-const API_URL = "https://jsonplaceholder.typicode.com/posts?userId=2";
+// const API_URL = "https://jsonplaceholder.typicode.com/posts?userId=2";
 
 // console.log("JS підключено!");
 // const notes = [
