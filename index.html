@@ -1,5 +1,7 @@
-<!-- Вибір на користь React зумовлений його гнучкою компонентною архітектурою, потужною екосистемою та універсальністю для побудови сучасних інтерактивних інтерфейсів. -->
-
+<!-- 
+Обрано React, бо він має гнучку компонентну архітектуру, потужну екосистему 
+та зручний декларативний підхід до побудови інтерактивних інтерфейсів. 
+-->
 <!doctype html>
 <html lang="uk">
   <head>
@@ -37,16 +39,6 @@
 
     <div class="container">
       <main>
-        <div class="api-controls">
-          <button id="refresh-btn" type="button">
-            Оновити конспекти з API
-          </button>
-          <span id="loading" class="loading-text" style="display: none"
-            >Завантаження...</span
-          >
-          <div id="error-message" class="error-message"></div>
-        </div>
-
         <form action="search">
           <label for="search-note">Пошук конспекту за назвою:</label>
           <input
@@ -88,7 +80,47 @@
 
         <section id="algebra">
           <h2>Алгебра</h2>
-          <div class="cards" id="notes-list"></div>
+
+          <!-- 
+            Статичні картки залишені в звичайному HTML (не в React).
+          -->
+          <div class="cards">
+            <article class="card">
+              <img
+                src="assets/img/kvadratychna-funktsiya.jpg"
+                alt="Квадратична функція"
+              />
+              <h3>Квадратична функція</h3>
+              <p>
+                Основні властивості квадратичної функції, парабола та її вершина
+              </p>
+            </article>
+            <article class="card">
+              <img
+                src="assets/img/pokaznykovi.png"
+                alt="Показникові рівняння"
+              />
+              <h3>Показникові рівняння</h3>
+              <p>
+                Методи розв'язування показникових рівнянь та систем, зведення до
+                спільної основи.
+              </p>
+            </article>
+            <article class="card">
+              <img src="assets/img/pohidna.png" alt="Похідна функції" />
+              <h3>Похідна функції</h3>
+              <p>
+                Геометричний та фізичний зміст похідної, правила
+                диференціювання.
+              </p>
+            </article>
+          </div>
+
+          <!-- 
+            Кнопка оновлення та індикатори тепер всередині React 
+            (без getElementById / onclick)
+          -->
+          <div id="algebra-app"></div>
         </section>
 
         <section id="geometry">
@@ -235,7 +267,7 @@
       <aside>
         <h2>Перегляд обраного конспекту</h2>
         <p>Оберіть конспект зі списку, щоб прочитати повний текст</p>
-        <p id="notes-count">Доданих конспктів: 0</p>
+        <p id="notes-count">Доданих конспектів: 0</p>
       </aside>
     </div>
 
@@ -246,9 +278,6 @@
       </p>
     </footer>
 
-    <!-- React ідеально підходить для поступової міграції legacy-проєктів із Vanilla JS на сучасну компонентно-орієнтовану архітектуру. 
-    Він дозволяє керувати інтерфейсом за допомогою декларативного рендерингу та реактивного стану (useState), повністю позбавляючись 
-    ручних маніпуляцій із DOM (innerHTML, querySelector), при цьому зберігаючи існуючі стилі та структуру проєкту. -->
     <script
       src="https://unpkg.com/react@18/umd/react.development.js"
       crossorigin
@@ -259,10 +288,23 @@
     ></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
+    <!-- React ідеально підходить для поступової міграції legacy-проєктів із Vanilla JS на сучасну компонентно-орієнтовану архітектуру. 
+    Він дозволяє керувати інтерфейсом за допомогою декларативного рендерингу та реактивного стану (useState), повністю позбавляючись 
+    ручних маніпуляцій із DOM (innerHTML, querySelector), при цьому зберігаючи існуючі стилі та структуру проєкту. -->
     <script type="text/babel">
-      const { useState, useEffect } = React;
+      const { useState } = React;
 
-      const NotesSummary = ({ id, title, body, learned, onToggle }) => {
+      // Компонент NoteSummary.
+      // Props за варіантом: subject, topic, pages.
+      // id, learned, onToggle потрібні для події.
+      const NoteSummary = ({
+        id,
+        subject,
+        topic,
+        pages,
+        learned,
+        onToggle,
+      }) => {
         return (
           <article
             className="card"
@@ -274,15 +316,20 @@
             }}
           >
             <h3>
-              {title} {learned ? "✅" : ""}
+              {subject}: {topic} {learned ? "✅" : ""}
             </h3>
-            <p>{body}</p>
+            <p>Кількість сторінок: {pages}</p>
+            <p style={{ fontSize: "0.85em", color: "#666" }}>
+              {learned ? "Вивчено" : "Ще не вивчено (натисніть, щоб змінити)"}
+            </p>
           </article>
         );
       };
-
+      // Дані зберігаються в реактивному стані
       const App = () => {
         const [notesData, setNotesData] = useState([]);
+        const [isLoading, setIsLoading] = useState(false);
+        const [error, setError] = useState("");
 
         const toggleLearned = (id) => {
           setNotesData((prevData) =>
@@ -293,11 +340,8 @@
         };
 
         const loadData = async () => {
-          const loadingEl = document.getElementById("loading");
-          const errorEl = document.getElementById("error-message");
-
-          if (loadingEl) loadingEl.style.display = "inline";
-          if (errorEl) errorEl.textContent = "";
+          setIsLoading(true);
+          setError("");
 
           try {
             const response = await fetch(
@@ -309,75 +353,54 @@
             const data = await response.json();
 
             const formattedData = data.map((item) => ({
-              ...item,
+              id: item.id,
+              subject: "Алгебра",
+              topic: item.title,
+              pages: (item.id % 15) + 1,
               learned: false,
             }));
 
             setNotesData(formattedData);
-          } catch (error) {
-            console.error("Помилка:", error);
-            if (errorEl)
-              errorEl.textContent =
-                "Не вдалося завантажити конспекти. Спробуйте пізніше.";
+          } catch (err) {
+            console.error("Помилка:", err);
+            setError("Не вдалося завантажити конспекти. Спробуйте пізніше.");
           } finally {
-            if (loadingEl) loadingEl.style.display = "none";
+            setIsLoading(false);
           }
         };
 
-        useEffect(() => {
-          const refreshBtn = document.getElementById("refresh-btn");
-          if (refreshBtn) {
-            refreshBtn.onclick = loadData;
-          }
-        }, []);
-
         return (
           <React.Fragment>
-            <article className="card">
-              <img
-                src="assets/img/kvadratychna-funktsiya.jpg"
-                alt="Квадратична функція"
-              />
-              <h3>Квадратична функція</h3>
-              <p>
-                Основні властивості квадратичної функції, парабола та її вершина
-              </p>
-            </article>
-            <article className="card">
-              <img
-                src="assets/img/pokaznykovi.png"
-                alt="Показникові рівняння"
-              />
-              <h3>Показникові рівняння</h3>
-              <p>
-                Методи розв'язування показникових рівнянь та систем, зведення до
-                спільної основи.
-              </p>
-            </article>
-            <article className="card">
-              <img src="assets/img/pohidna.png" alt="Похідна функції" />
-              <h3>Похідна функції</h3>
-              <p>
-                Геометричний та фізичний зміст похідної, правила
-                диференціювання.
-              </p>
-            </article>
+            <div className="api-controls" style={{ margin: "1rem 0" }}>
+              <button type="button" onClick={loadData} disabled={isLoading}>
+                Оновити конспекти з API
+              </button>
+              {isLoading && (
+                <span className="loading-text"> Завантаження...</span>
+              )}
+              {error && <div className="error-message">{error}</div>}
+            </div>
 
-            {notesData.map((note) => (
-              <NotesSummary
-                key={note.id}
-                id={note.id}
-                title={note.title}
-                body={note.body}
-                learned={note.learned}
-                onToggle={toggleLearned}
-              />
-            ))}
+            {notesData.length > 0 && (
+              <div className="cards">
+                {notesData.map((note) => (
+                  <NoteSummary
+                    key={note.id}
+                    id={note.id}
+                    subject={note.subject}
+                    topic={note.topic}
+                    pages={note.pages}
+                    learned={note.learned}
+                    onToggle={toggleLearned}
+                  />
+                ))}
+              </div>
+            )}
           </React.Fragment>
         );
       };
 
-      const container = document.getElementById("notes-list");
+      const container = document.getElementById("algebra-app");
       if (container) {
         const root = ReactDOM.createRoot(container);
         root.render(<App />);
