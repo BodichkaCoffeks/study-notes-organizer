@@ -231,11 +231,49 @@ let notesData = [];
 // Контейнер, у який додаються картки конспектів
 const listContainer = document.querySelector("#notes-list");
 
+// ВИПРАВЛЕНО: додано фільтр за предметом
+let subjectFilter = "";
+
+// Випадаючий список фільтра створюється з JS і вставляється перед списком карток
+const filterSelect = document.createElement("select");
+filterSelect.id = "subject-filter";
+filterSelect.setAttribute("aria-label", "Фільтр за предметом");
+listContainer.before(filterSelect);
+
+// Заповнює фільтр унікальними предметами з масиву, який повернув getAllItems()
+function updateFilterOptions() {
+  const subjects = [...new Set(notesData.map((note) => note.subject))].sort();
+  if (subjectFilter && !subjects.includes(subjectFilter)) {
+    subjectFilter = "";
+  }
+  filterSelect.innerHTML = "";
+  filterSelect.append(new Option("Усі предмети", ""));
+  subjects.forEach((subject) =>
+    filterSelect.append(new Option(subject, subject)),
+  );
+  filterSelect.value = subjectFilter;
+}
+
+// Фільтрація виконується на клієнті над масивом із getAllItems()
+const getFilteredNotes = () =>
+  subjectFilter
+    ? notesData.filter((note) => note.subject === subjectFilter)
+    : notesData;
+
+filterSelect.addEventListener("change", () => {
+  subjectFilter = filterSelect.value;
+  renderCard(getFilteredNotes());
+});
+
 // Оновлює текст лічильника конспектів
 const updateCount = () => {
   const notesCountElement = document.querySelector("#notes-count");
   if (notesCountElement) {
-    notesCountElement.textContent = `Усього конспектів: ${notesData.length}`;
+    // ВИПРАВЛЕНО: лічильник враховує фільтр за предметом
+    const shown = listContainer.querySelectorAll(".card.user-card").length;
+    notesCountElement.textContent = subjectFilter
+      ? `Показано: ${shown} з ${notesData.length}`
+      : `Усього конспектів: ${notesData.length}`;
   }
 };
 
@@ -269,8 +307,8 @@ const renderCard = (array) => {
 
     // Додаємо і "card", і "user-card"
     cardElement.classList.add("card", "user-card");
-    // Зберігаємо індекс запису в масиві, щоб знати, який саме конспект змінюється
-    cardElement.dataset.index = i;
+    // ВИПРАВЛЕНО: замість індексу використовується id, щоб фільтр не ламав чекбокс і видалення
+    cardElement.dataset.id = note.id;
 
     if (note.examSoon) {
       cardElement.classList.add("exam-soon");
@@ -295,7 +333,9 @@ const renderCard = (array) => {
 async function refreshList() {
   try {
     notesData = await getAllItems();
-    renderCard(notesData);
+    // ВИПРАВЛЕНО: заповнюємо фільтр і рендеримо відфільтрований масив (було renderCard(notesData))
+    updateFilterOptions();
+    renderCard(getFilteredNotes());
   } catch (error) {
     console.error("Не вдалося завантажити конспекти з IndexedDB:", error);
   }
@@ -346,15 +386,16 @@ topicInput.addEventListener("input", () => {
 listContainer.addEventListener("change", async (event) => {
   if (event.target.classList.contains("exam-checkbox")) {
     const card = event.target.closest(".card");
-    if (!card || card.dataset.index === undefined) return;
+    if (!card || card.dataset.id === undefined) return;
 
-    const index = Number(card.dataset.index);
+    // ВИПРАВЛЕНО: пошук запису за id (а не за індексом), бо після фільтрації індекси не збігаються
+    const note = notesData.find((n) => String(n.id) === card.dataset.id);
+    if (!note) return;
 
-    // замість зміни notesData[index] і saveToLocalStorage(...)
     // створюємо оновлену копію запису й зберігаємо її через updateItem,
     // після чого список оновлюється з бази
     try {
-      await updateItem({ ...notesData[index], examSoon: event.target.checked });
+      await updateItem({ ...note, examSoon: event.target.checked });
       await refreshList();
     } catch (error) {
       console.error("Не вдалося оновити конспект:", error);
@@ -367,14 +408,15 @@ listContainer.addEventListener("change", async (event) => {
 listContainer.addEventListener("click", async (event) => {
   if (event.target.classList.contains("delete-btn")) {
     const card = event.target.closest(".card");
-    if (!card || card.dataset.index === undefined) return;
+    if (!card || card.dataset.id === undefined) return;
 
-    const index = Number(card.dataset.index);
+    // ВИПРАВЛЕНО: пошук запису за id (а не за індексом) через фільтр
+    const note = notesData.find((n) => String(n.id) === card.dataset.id);
+    if (!note) return;
 
-    // замість notesData.splice(...) і saveToLocalStorage(...)
     // видаляємо запис з IndexedDB за його id і оновлюємо список з бази
     try {
-      await deleteItem(notesData[index].id);
+      await deleteItem(note.id);
       await refreshList();
     } catch (error) {
       console.error("Не вдалося видалити конспект:", error);
@@ -401,7 +443,7 @@ function openDB() {
     return;
   }
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 0);
+    const request = indexedDB.open(DB_NAME, DB_VERSION); //ВИПРАВЛЕННЯ: відкриваємо з версією, яка вказана у константі, а не з версією 0
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
