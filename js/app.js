@@ -1,3 +1,18 @@
+/* =====================================================================
+ * Комп. практикум: «Анімація / Canvas». Варіант 16 — Органайзер конспектів.
+ * Завдання: CSS прогрес-бар «вивчено тем із предмета», ширина смуги =
+ * відсоток конспектів, позначених опрацьованими, з плавним transition.
+ *
+ * Де в цьому файлі виконано кроки практикуму:
+ *   Крок 1 — обрано CSS-варіант (Canvas не потрібен, кроки 3 і 5 пропущено)
+ *   Крок 2 — розмітка в index.html (.progress) і transition у style.css
+ *   Крок 4 — поле learned у даних, функція updateProgress()
+ *   Крок 6 — чекбокс «Вивчено» + оновлення прогресу при зміні даних
+ *   Крок 7 — окремі кнопки не потрібні, керування = чекбокс «Вивчено»
+ *   Крок 8 — перевірка продуктивності (див. коментар перед updateProgress)
+ *   Крок 9 — коментарі в коді та коміт з описовим повідомленням
+ * ===================================================================== */
+
 // const API_URL = "https://jsonplaceholder.typicode.com/posts?userId=2";
 
 // console.log("JS підключено!");
@@ -277,6 +292,32 @@ const updateCount = () => {
   }
 };
 
+const progressBar = document.querySelector("#progress-bar");
+const progressTrack = document.querySelector("#progress-track");
+const progressText = document.querySelector("#progress-text");
+const progressTitle = document.querySelector("#progress-title");
+
+function updateProgress(notes) {
+  const total = notes.length;
+  const learnedCount = notes.filter((note) => note.learned).length;
+  // Захист від ділення на нуль, коли конспектів ще немає
+  const percent = total === 0 ? 0 : Math.round((learnedCount / total) * 100);
+
+  progressBar.style.width = `${percent}%`;
+  // Коли вивчено все, смуга змінює колір
+  progressBar.classList.toggle(
+    "progress-bar--done",
+    total > 0 && percent === 100,
+  );
+
+  // Текстовий підпис і атрибут для доступності
+  progressText.textContent = `${learnedCount} з ${total} (${percent}%)`;
+  progressTitle.textContent = subjectFilter
+    ? `Вивчено тем: ${subjectFilter}`
+    : "Вивчено тем: усі предмети";
+  progressTrack.setAttribute("aria-valuenow", percent);
+}
+
 // Бере масив даних, видаляє старі динамічні картки та створює нові
 const renderCard = (array) => {
   // Видаляємо тільки динамічні картки (з класом user-card)
@@ -300,6 +341,16 @@ const renderCard = (array) => {
     checkboxElement.checked = note.examSoon;
     checkboxElement.classList.add("exam-checkbox");
 
+    // Чекбокс «Вивчено». Ним користувач змінює дані,
+    // від яких залежить прогрес бар, тобто анімація пов'язана з реальною дією.
+    // Boolean() потрібен, бо старі записи в базі можуть не мати поля learned.
+    const learnedLabel = document.createElement("label");
+    const learnedCheckbox = document.createElement("input");
+    learnedCheckbox.type = "checkbox";
+    learnedCheckbox.checked = Boolean(note.learned);
+    learnedCheckbox.classList.add("learned-checkbox");
+    learnedLabel.append(learnedCheckbox, " Вивчено");
+
     // Кнопка видалення конспекту
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Видалити";
@@ -319,12 +370,17 @@ const renderCard = (array) => {
       subjectElement,
       pagesElement,
       checkboxElement,
+      learnedLabel, //додаємо чекбокс «Вивчено» в картку
       deleteButton,
     );
 
     listContainer.append(cardElement);
   }
   updateCount();
+  // Після кожного перемальовування списку оновлюємо прогрес-бар.
+  // renderCard викликається і після завантаження з бази, і при зміні фільтра,
+  // тому смуга завжди відповідає тим конспектам, які зараз видно на екрані
+  updateProgress(array);
 };
 
 // Читає всі записи з IndexedDB через getAllItems(),
@@ -358,6 +414,9 @@ form.addEventListener("submit", async function (event) {
     topic: topic,
     pages: pages,
     examSoon: examSoon,
+    // Новий конспект спочатку не вивчений, тому
+    // після додавання загальний відсоток прогресу плавно зменшується.
+    learned: false,
   };
 
   // замість notesData.push(...) і saveToLocalStorage(...)
@@ -383,23 +442,34 @@ topicInput.addEventListener("input", () => {
   }
 });
 
+// Обробник зміни чекбоксів. Тепер обробляє
+// Два чекбокси: «Скоро іспит» і «Вивчено»
+// Зміна записується в IndexedDB, потім refreshList() перемальовує картки і
+// викликає updateProgress(), тому смуга прогресу плавно змінює ширину
 listContainer.addEventListener("change", async (event) => {
-  if (event.target.classList.contains("exam-checkbox")) {
-    const card = event.target.closest(".card");
-    if (!card || card.dataset.id === undefined) return;
+  const isExam = event.target.classList.contains("exam-checkbox");
+  const isLearned = event.target.classList.contains("learned-checkbox");
+  if (!isExam && !isLearned) return;
 
-    // ВИПРАВЛЕНО: пошук запису за id (а не за індексом), бо після фільтрації індекси не збігаються
-    const note = notesData.find((n) => String(n.id) === card.dataset.id);
-    if (!note) return;
+  const card = event.target.closest(".card");
+  if (!card || card.dataset.id === undefined) return;
 
-    // створюємо оновлену копію запису й зберігаємо її через updateItem,
-    // після чого список оновлюється з бази
-    try {
-      await updateItem({ ...note, examSoon: event.target.checked });
-      await refreshList();
-    } catch (error) {
-      console.error("Не вдалося оновити конспект:", error);
-    }
+  // ВИПРАВЛЕНО: пошук запису за id (а не за індексом), бо після фільтрації індекси не збігаються
+  const note = notesData.find((n) => String(n.id) === card.dataset.id);
+  if (!note) return;
+
+  // Визначаємо, яке саме поле змінилося
+  const changes = isExam
+    ? { examSoon: event.target.checked }
+    : { learned: event.target.checked };
+
+  // створюємо оновлену копію запису й зберігаємо її через updateItem,
+  // після чого список оновлюється з бази
+  try {
+    await updateItem({ ...note, ...changes });
+    await refreshList();
+  } catch (error) {
+    console.error("Не вдалося оновити конспект:", error);
   }
 });
 
@@ -415,6 +485,7 @@ listContainer.addEventListener("click", async (event) => {
     if (!note) return;
 
     // видаляємо запис з IndexedDB за його id і оновлюємо список з бази
+    //після видалення refreshList перераховує і прогрес-бар)
     try {
       await deleteItem(note.id);
       await refreshList();
