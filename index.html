@@ -77,7 +77,24 @@
           </label>
           <button type="submit">Додати конспект</button>
         </form>
-
+        <!-- Прогрес-бар: скільки конспектів вибраного предмета вивчено -->
+        <div class="progress" id="progress">
+          <div class="progress-label">
+            <span id="progress-title">Вивчено тем: усі предмети</span>
+            <span id="progress-text">0 з 0 (0%)</span>
+          </div>
+          <div
+            class="progress-track"
+            id="progress-track"
+            role="progressbar"
+            aria-label="Прогрес вивчення конспектів"
+            aria-valuenow="0"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+        </div>
         <div id="notes-list" class="cards"></div>
         <section id="algebra">
           <h2>Алгебра</h2>
