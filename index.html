@@ -12,275 +12,52 @@
   </head>
   <body>
     <header>
-      <h1>Органайзер конспектів</h1>
+      <!-- КП13, крок 6: посилання мають data-link — клік перехоплює роутер (app.js) -->
+      <h1><a href="#/" data-link>Органайзер конспектів</a></h1>
       <nav>
         <ul>
           <li class="header-nav-li">
-            <a href="#algebra" class="header-nav-li-a">Алгебра</a>
+            <a href="#/subjects/algebra" class="header-nav-li-a" data-link
+              >Алгебра</a
+            >
           </li>
           <li class="header-nav-li">
-            <a href="#geometry" class="header-nav-li-a">Геометрія</a>
+            <a href="#/subjects/geometry" class="header-nav-li-a" data-link
+              >Геометрія</a
+            >
           </li>
           <li class="header-nav-li">
-            <a href="#physics" class="header-nav-li-a">Фізика</a>
+            <a href="#/subjects/physics" class="header-nav-li-a" data-link
+              >Фізика</a
+            >
           </li>
           <li class="header-nav-li">
-            <a href="#chemistry" class="header-nav-li-a">Хімія</a>
+            <a href="#/subjects/chemistry" class="header-nav-li-a" data-link
+              >Хімія</a
+            >
           </li>
           <li class="header-nav-li">
-            <a href="#english" class="header-nav-li-a">Англійська мова</a>
+            <a href="#/subjects/english" class="header-nav-li-a" data-link
+              >Англійська мова</a
+            >
           </li>
           <li class="header-nav-li">
-            <a href="#geography" class="header-nav-li-a">Географія</a>
+            <a href="#/subjects/geography" class="header-nav-li-a" data-link
+              >Географія</a
+            >
+          </li>
+          <li class="header-nav-li">
+            <a href="#/subjects" class="header-nav-li-a" data-link
+              >Усі предмети</a
+            >
           </li>
         </ul>
       </nav>
     </header>
 
     <div class="container">
-      <main>
-        <form action="search">
-          <label for="search-note">Пошук конспекту за назвою:</label>
-          <input
-            type="search"
-            id="search-note"
-            placeholder="Наприклад: Квадратична..."
-          />
-        </form>
-
-        <form id="add-note-form">
-          <label for="subject">Предмет:</label>
-          <select id="subject" name="subject" required>
-            <option value="" disabled selected>Оберіть предмет</option>
-            <option value="Алгебра">Алгебра</option>
-            <option value="Історія">Історія</option>
-            <option value="Географія">Географія</option>
-            <option value="Фізика">Фізика</option>
-            <option value="Англійська мова">Англійська мова</option>
-            <option value="Хімія">Хімія</option>
-          </select>
-          <label for="topic">Тема:</label>
-          <input
-            type="text"
-            id="topic"
-            name="topic"
-            required
-            pattern=".{3,}"
-            title="Тема має містити щонайменше 3 символи"
-            placeholder="Квадратичні рівняння"
-          />
-          <label for="pages">Кількість сторінок:</label>
-          <input type="number" id="pages" name="pages" required min="1" />
-          <label>
-            <input type="checkbox" id="examSoon" name="examSoon" />
-            Скоро іспит
-          </label>
-          <button type="submit">Додати конспект</button>
-        </form>
-        <!-- Прогрес-бар: скільки конспектів вибраного предмета вивчено -->
-        <div class="progress" id="progress">
-          <div class="progress-label">
-            <span id="progress-title">Вивчено тем: усі предмети</span>
-            <span id="progress-text">0 з 0 (0%)</span>
-          </div>
-          <div
-            class="progress-track"
-            id="progress-track"
-            role="progressbar"
-            aria-label="Прогрес вивчення конспектів"
-            aria-valuenow="0"
-            aria-valuemin="0"
-            aria-valuemax="100"
-          >
-            <div class="progress-bar" id="progress-bar"></div>
-          </div>
-        </div>
-        <div id="notes-list" class="cards"></div>
-        <section id="algebra">
-          <h2>Алгебра</h2>
-
-          <!-- 
-            Статичні картки залишені в звичайному HTML (не в React).
-          -->
-          <div class="cards">
-            <article class="card">
-              <img
-                src="assets/img/kvadratychna-funktsiya.jpg"
-                alt="Квадратична функція"
-              />
-              <h3>Квадратична функція</h3>
-              <p>
-                Основні властивості квадратичної функції, парабола та її вершина
-              </p>
-            </article>
-            <article class="card">
-              <img
-                src="assets/img/pokaznykovi.png"
-                alt="Показникові рівняння"
-              />
-              <h3>Показникові рівняння</h3>
-              <p>
-                Методи розв'язування показникових рівнянь та систем, зведення до
-                спільної основи.
-              </p>
-            </article>
-            <article class="card">
-              <img src="assets/img/pohidna.png" alt="Похідна функції" />
-              <h3>Похідна функції</h3>
-              <p>
-                Геометричний та фізичний зміст похідної, правила
-                диференціювання.
-              </p>
-            </article>
-          </div>
-
-          <!-- 
-            Кнопка оновлення та індикатори тепер всередині React 
-            (без getElementById / onclick)
-          -->
-          <div id="algebra-app"></div>
-        </section>
-
-        <section id="geometry">
-          <h2>Геометрія</h2>
-          <div class="cards">
-            <article class="card">
-              <img
-                src="assets/img/teorema-pifagora.png"
-                alt="Теорема піфагора"
-              />
-              <h3>Теорема Піфагора</h3>
-              <p>
-                У прямокутному трикутнику квадрат гіпотенузи дорівнює сумі
-                квадратів катетів
-              </p>
-            </article>
-            <article class="card">
-              <img src="assets/img/vectory.png" alt="Вектори у просторі" />
-              <h3>Вектори у просторі</h3>
-              <p>
-                Операції над векторами, скалярний добуток та кут між векторами.
-              </p>
-            </article>
-            <article class="card">
-              <img
-                src="assets/img/ploski-fihyru.png"
-                alt="Площі плоских фігур"
-              />
-              <h3>Площі плоских фігур</h3>
-              <p>
-                Формули обчислення площі трикутника, паралелограма, трапеції та
-                круга.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="physics">
-          <h2>Фізика</h2>
-          <div class="cards">
-            <article class="card">
-              <img src="assets/img/zakon-nyutona.png" alt="Закон Ньютона" />
-              <h3>Закони Ньютона</h3>
-              <p>Основи класичної механіки: інерція, сила та протидія</p>
-            </article>
-            <article class="card">
-              <img src="assets/img/zakon-oma.png" alt="Закон Ома" />
-              <h3>Закон Ома для ділянки кола</h3>
-              <p>Залежність сили струму від напруги та опору провідника.</p>
-            </article>
-            <article class="card">
-              <img src="assets/img/mkt.png" alt="Молекулярна фізика" />
-              <h3>Основне рівняння МКТ</h3>
-              <p>
-                Молекулярно-кінетична теорія, тиск і температура ідеального
-                газу.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="chemistry">
-          <h2>Хімія</h2>
-          <div class="cards">
-            <article class="card">
-              <img
-                src="assets/img/periodichnyy-zakon-mendeleyeva.png"
-                alt="Періодичний закон Менделєєва"
-              />
-              <h3>Періодичний закон Менделєєва</h3>
-              <p>
-                Будова періодичної системи елементів та періодичність їхніх
-                властивостей
-              </p>
-            </article>
-            <article class="card">
-              <img
-                src="assets/img/reaction.png"
-                alt="Окисно-відновні реакції"
-              />
-              <h3>Окисно-відновні реакції</h3>
-              <p>
-                Процеси окиснення та відновлення, електронний баланс реакцій.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="english">
-          <h2>Англійська мова</h2>
-          <div class="cards">
-            <article class="card">
-              <img src="assets/img/present_simple.png" alt="Present Simple" />
-              <h3>Present Simple</h3>
-              <p>
-                Теперішній простий час для вираження регулярних та постійних дій
-              </p>
-            </article>
-            <article class="card">
-              <img src="assets/img/passive-voice.png" alt="Passive Voice" />
-              <h3>Passive Voice</h3>
-              <p>
-                Утворення та використання пасивного стану в різних часових
-                формах.
-              </p>
-            </article>
-            <article class="card">
-              <img src="assets/img/modal-verbs.png" alt="Modal Verbs" />
-              <h3>Modal Verbs</h3>
-              <p>
-                Модальні дієслова must, should, can, may та особливості їхнього
-                вживання.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="geography">
-          <h2>Географія</h2>
-          <div class="cards">
-            <article class="card">
-              <img src="assets/img/hory.jpg" alt="Гори" />
-              <h3>Гори</h3>
-              <p>
-                Процеси утворення гірських систем, класифікація гір за висотою
-                та віком
-              </p>
-            </article>
-            <article class="card">
-              <img
-                src="assets/img/climatychni-poyasy.jpg"
-                alt="Кліматичні пояси"
-              />
-              <h3>Кліматичні пояси Землі</h3>
-              <p>
-                Характеристика основних та перехідних кліматичних поясів
-                планети.
-              </p>
-            </article>
-          </div>
-        </section>
-      </main>
+      <!-- єдиний контейнер, у який роутер рендерить усі «сторінки» -->
+      <main id="app"></main>
 
       <aside>
         <h2>Перегляд обраного конспекту</h2>
@@ -295,6 +72,238 @@
         того, щоб організовувати конспекти.
       </p>
     </footer>
+
+    <!-- КП13, крок 5: вміст колишнього <main> перенесено в шаблони, які view-функції
+    (app.js) клонують у #app. Шаблон головної сторінки: пошук, форма, прогрес, список -->
+    <template id="tpl-home">
+      <form action="search">
+        <label for="search-note">Пошук конспекту за назвою:</label>
+        <input
+          type="search"
+          id="search-note"
+          placeholder="Наприклад: Квадратична..."
+        />
+      </form>
+
+      <form id="add-note-form">
+        <label for="subject">Предмет:</label>
+        <select id="subject" name="subject" required>
+          <option value="" disabled selected>Оберіть предмет</option>
+          <option value="Алгебра">Алгебра</option>
+          <option value="Історія">Історія</option>
+          <option value="Географія">Географія</option>
+          <option value="Фізика">Фізика</option>
+          <option value="Англійська мова">Англійська мова</option>
+          <option value="Хімія">Хімія</option>
+        </select>
+        <label for="topic">Тема:</label>
+        <input
+          type="text"
+          id="topic"
+          name="topic"
+          required
+          pattern=".{3,}"
+          title="Тема має містити щонайменше 3 символи"
+          placeholder="Квадратичні рівняння"
+        />
+        <label for="pages">Кількість сторінок:</label>
+        <input type="number" id="pages" name="pages" required min="1" />
+        <label>
+          <input type="checkbox" id="examSoon" name="examSoon" />
+          Скоро іспит
+        </label>
+        <button type="submit">Додати конспект</button>
+      </form>
+      <!-- Прогрес-бар: скільки конспектів вибраного предмета вивчено -->
+      <div class="progress" id="progress">
+        <div class="progress-label">
+          <span id="progress-title">Вивчено тем: усі предмети</span>
+          <span id="progress-text">0 з 0 (0%)</span>
+        </div>
+        <div
+          class="progress-track"
+          id="progress-track"
+          role="progressbar"
+          aria-label="Прогрес вивчення конспектів"
+          aria-valuenow="0"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+      <div id="notes-list" class="cards"></div>
+    </template>
+
+    <!-- Шаблон сторінки предметів: статичні розділи (і React-острівець у #algebra-app) -->
+    <template id="tpl-subjects">
+      <section id="algebra">
+        <h2>Алгебра</h2>
+
+        <!-- 
+            Статичні картки залишені в звичайному HTML (не в React).
+          -->
+        <div class="cards">
+          <article class="card">
+            <img
+              src="assets/img/kvadratychna-funktsiya.jpg"
+              alt="Квадратична функція"
+            />
+            <h3>Квадратична функція</h3>
+            <p>
+              Основні властивості квадратичної функції, парабола та її вершина
+            </p>
+          </article>
+          <article class="card">
+            <img src="assets/img/pokaznykovi.png" alt="Показникові рівняння" />
+            <h3>Показникові рівняння</h3>
+            <p>
+              Методи розв'язування показникових рівнянь та систем, зведення до
+              спільної основи.
+            </p>
+          </article>
+          <article class="card">
+            <img src="assets/img/pohidna.png" alt="Похідна функції" />
+            <h3>Похідна функції</h3>
+            <p>
+              Геометричний та фізичний зміст похідної, правила диференціювання.
+            </p>
+          </article>
+        </div>
+
+        <!-- 
+            Кнопка оновлення та індикатори тепер всередині React 
+            (без getElementById / onclick)
+          -->
+        <div id="algebra-app"></div>
+      </section>
+
+      <section id="geometry">
+        <h2>Геометрія</h2>
+        <div class="cards">
+          <article class="card">
+            <img src="assets/img/teorema-pifagora.png" alt="Теорема піфагора" />
+            <h3>Теорема Піфагора</h3>
+            <p>
+              У прямокутному трикутнику квадрат гіпотенузи дорівнює сумі
+              квадратів катетів
+            </p>
+          </article>
+          <article class="card">
+            <img src="assets/img/vectory.png" alt="Вектори у просторі" />
+            <h3>Вектори у просторі</h3>
+            <p>
+              Операції над векторами, скалярний добуток та кут між векторами.
+            </p>
+          </article>
+          <article class="card">
+            <img src="assets/img/ploski-fihyru.png" alt="Площі плоских фігур" />
+            <h3>Площі плоских фігур</h3>
+            <p>
+              Формули обчислення площі трикутника, паралелограма, трапеції та
+              круга.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="physics">
+        <h2>Фізика</h2>
+        <div class="cards">
+          <article class="card">
+            <img src="assets/img/zakon-nyutona.png" alt="Закон Ньютона" />
+            <h3>Закони Ньютона</h3>
+            <p>Основи класичної механіки: інерція, сила та протидія</p>
+          </article>
+          <article class="card">
+            <img src="assets/img/zakon-oma.png" alt="Закон Ома" />
+            <h3>Закон Ома для ділянки кола</h3>
+            <p>Залежність сили струму від напруги та опору провідника.</p>
+          </article>
+          <article class="card">
+            <img src="assets/img/mkt.png" alt="Молекулярна фізика" />
+            <h3>Основне рівняння МКТ</h3>
+            <p>
+              Молекулярно-кінетична теорія, тиск і температура ідеального газу.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="chemistry">
+        <h2>Хімія</h2>
+        <div class="cards">
+          <article class="card">
+            <img
+              src="assets/img/periodichnyy-zakon-mendeleyeva.png"
+              alt="Періодичний закон Менделєєва"
+            />
+            <h3>Періодичний закон Менделєєва</h3>
+            <p>
+              Будова періодичної системи елементів та періодичність їхніх
+              властивостей
+            </p>
+          </article>
+          <article class="card">
+            <img src="assets/img/reaction.png" alt="Окисно-відновні реакції" />
+            <h3>Окисно-відновні реакції</h3>
+            <p>Процеси окиснення та відновлення, електронний баланс реакцій.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="english">
+        <h2>Англійська мова</h2>
+        <div class="cards">
+          <article class="card">
+            <img src="assets/img/present_simple.png" alt="Present Simple" />
+            <h3>Present Simple</h3>
+            <p>
+              Теперішній простий час для вираження регулярних та постійних дій
+            </p>
+          </article>
+          <article class="card">
+            <img src="assets/img/passive-voice.png" alt="Passive Voice" />
+            <h3>Passive Voice</h3>
+            <p>
+              Утворення та використання пасивного стану в різних часових формах.
+            </p>
+          </article>
+          <article class="card">
+            <img src="assets/img/modal-verbs.png" alt="Modal Verbs" />
+            <h3>Modal Verbs</h3>
+            <p>
+              Модальні дієслова must, should, can, may та особливості їхнього
+              вживання.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="geography">
+        <h2>Географія</h2>
+        <div class="cards">
+          <article class="card">
+            <img src="assets/img/hory.jpg" alt="Гори" />
+            <h3>Гори</h3>
+            <p>
+              Процеси утворення гірських систем, класифікація гір за висотою та
+              віком
+            </p>
+          </article>
+          <article class="card">
+            <img
+              src="assets/img/climatychni-poyasy.jpg"
+              alt="Кліматичні пояси"
+            />
+            <h3>Кліматичні пояси Землі</h3>
+            <p>
+              Характеристика основних та перехідних кліматичних поясів планети.
+            </p>
+          </article>
+        </div>
+      </section>
+    </template>
 
     <script
       src="https://unpkg.com/react@18/umd/react.development.js"
@@ -418,11 +427,14 @@
         );
       };
 
-      const container = document.getElementById("algebra-app");
-      if (container) {
+      // КП13: #algebra-app з'являється лише на сторінці предметів, тому замість монтування
+      // при завантаженні виставляємо функцію, яку викликає роутер (app.js), і сповіщаємо про готовність
+      window.mountAlgebraApp = (container) => {
         const root = ReactDOM.createRoot(container);
         root.render(<App />);
-      }
+        return root;
+      };
+      window.dispatchEvent(new Event("react-ready"));
     </script>
     <script src="js/app.js"></script>
   </body>
