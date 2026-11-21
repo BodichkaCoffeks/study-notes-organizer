@@ -1,18 +1,3 @@
-/* =====================================================================
- * Комп. практикум: «Анімація / Canvas». Варіант 16 — Органайзер конспектів.
- * Завдання: CSS прогрес-бар «вивчено тем із предмета», ширина смуги =
- * відсоток конспектів, позначених опрацьованими, з плавним transition.
- *
- * Де в цьому файлі виконано кроки практикуму:
- *   Крок 1 — обрано CSS-варіант (Canvas не потрібен, кроки 3 і 5 пропущено)
- *   Крок 2 — розмітка в index.html (.progress) і transition у style.css
- *   Крок 4 — поле learned у даних, функція updateProgress()
- *   Крок 6 — чекбокс «Вивчено» + оновлення прогресу при зміні даних
- *   Крок 7 — окремі кнопки не потрібні, керування = чекбокс «Вивчено»
- *   Крок 8 — перевірка продуктивності (див. коментар перед updateProgress)
- *   Крок 9 — коментарі в коді та коміт з описовим повідомленням
- * ===================================================================== */
-
 // const API_URL = "https://jsonplaceholder.typicode.com/posts?userId=2";
 
 // console.log("JS підключено!");
@@ -244,7 +229,15 @@ function loadFromLocalStorage() {
 let notesData = [];
 
 // Контейнер, у який додаються картки конспектів
-const listContainer = document.querySelector("#notes-list");
+//контейнер створюється разом із головною сторінкою,
+// тому спочатку null і заповнюється у homeView()
+let listContainer = null;
+
+//єдиний контейнер, у який роутер рендерить усі «сторінки»
+const app = document.querySelector("#app");
+
+//що перемальовувати після читання з IndexedDB — задає поточна view
+let onDataChange = () => {};
 
 // ВИПРАВЛЕНО: додано фільтр за предметом
 let subjectFilter = "";
@@ -253,7 +246,7 @@ let subjectFilter = "";
 const filterSelect = document.createElement("select");
 filterSelect.id = "subject-filter";
 filterSelect.setAttribute("aria-label", "Фільтр за предметом");
-listContainer.before(filterSelect);
+//вставка фільтра перед списком перенесена в homeView(), бо #notes-list створюється при кожному рендері
 
 // Заповнює фільтр унікальними предметами з масиву, який повернув getAllItems()
 function updateFilterOptions() {
@@ -285,17 +278,22 @@ const updateCount = () => {
   const notesCountElement = document.querySelector("#notes-count");
   if (notesCountElement) {
     // ВИПРАВЛЕНО: лічильник враховує фільтр за предметом
-    const shown = listContainer.querySelectorAll(".card.user-card").length;
-    notesCountElement.textContent = subjectFilter
-      ? `Показано: ${shown} з ${notesData.length}`
-      : `Усього конспектів: ${notesData.length}`;
+    //поза головною (listContainer = null) показуємо загальну кількість
+    const shown = listContainer
+      ? listContainer.querySelectorAll(".card.user-card").length
+      : notesData.length;
+    notesCountElement.textContent =
+      subjectFilter && listContainer
+        ? `Показано: ${shown} з ${notesData.length}`
+        : `Усього конспектів: ${notesData.length}`;
   }
 };
 
-const progressBar = document.querySelector("#progress-bar");
-const progressTrack = document.querySelector("#progress-track");
-const progressText = document.querySelector("#progress-text");
-const progressTitle = document.querySelector("#progress-title");
+// прогрес-бар тепер у шаблоні головної сторінки, елементи знаходяться в homeView()
+let progressBar = null;
+let progressTrack = null;
+let progressText = null;
+let progressTitle = null;
 
 function updateProgress(notes) {
   const total = notes.length;
@@ -318,6 +316,68 @@ function updateProgress(notes) {
   progressTrack.setAttribute("aria-valuenow", percent);
 }
 
+// створення однієї картки винесено з renderCard,
+// щоб ту саму функцію рендеру використовували і список, і сторінка деталей
+const createNoteCard = (note, withLink = true) => {
+  const cardElement = document.createElement("article");
+  const titleElement = document.createElement("h3");
+  const subjectElement = document.createElement("p");
+  const pagesElement = document.createElement("p");
+
+  // заголовок — посилання на сторінку деталей, data-link вмикає клієнтську навігацію
+  if (withLink) {
+    const detailLink = document.createElement("a");
+    detailLink.href = `#/notes/${note.id}`;
+    detailLink.dataset.link = "";
+    detailLink.textContent = note.topic;
+    titleElement.append(detailLink);
+  } else {
+    titleElement.textContent = note.topic;
+  }
+  subjectElement.textContent = note.subject;
+  pagesElement.textContent = note.pages;
+
+  const checkboxElement = document.createElement("input");
+  checkboxElement.type = "checkbox";
+  checkboxElement.checked = note.examSoon;
+  checkboxElement.classList.add("exam-checkbox");
+
+  // Чекбокс «Вивчено». Ним користувач змінює дані,
+  // від яких залежить прогрес бар, тобто анімація пов'язана з реальною дією.
+  // Boolean() потрібен, бо старі записи в базі можуть не мати поля learned.
+  const learnedLabel = document.createElement("label");
+  const learnedCheckbox = document.createElement("input");
+  learnedCheckbox.type = "checkbox";
+  learnedCheckbox.checked = Boolean(note.learned);
+  learnedCheckbox.classList.add("learned-checkbox");
+  learnedLabel.append(learnedCheckbox, " Вивчено");
+
+  // Кнопка видалення конспекту
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "Видалити";
+  deleteButton.classList.add("delete-btn");
+
+  // Додаємо і "card", і "user-card"
+  cardElement.classList.add("card", "user-card");
+  // ВИПРАВЛЕНО: замість індексу використовується id, щоб фільтр не ламав чекбокс і видалення
+  cardElement.dataset.id = note.id;
+
+  if (note.examSoon) {
+    cardElement.classList.add("exam-soon");
+  }
+
+  cardElement.append(
+    titleElement,
+    subjectElement,
+    pagesElement,
+    checkboxElement,
+    learnedLabel, //додаємо чекбокс «Вивчено» в картку
+    deleteButton,
+  );
+
+  return cardElement;
+};
+
 // Бере масив даних, видаляє старі динамічні картки та створює нові
 const renderCard = (array) => {
   // Видаляємо тільки динамічні картки (з класом user-card)
@@ -326,55 +386,7 @@ const renderCard = (array) => {
     .forEach((card) => card.remove());
 
   for (let i = 0; i < array.length; i++) {
-    const note = array[i];
-    const cardElement = document.createElement("article");
-    const titleElement = document.createElement("h3");
-    const subjectElement = document.createElement("p");
-    const pagesElement = document.createElement("p");
-
-    titleElement.textContent = note.topic;
-    subjectElement.textContent = note.subject;
-    pagesElement.textContent = note.pages;
-
-    const checkboxElement = document.createElement("input");
-    checkboxElement.type = "checkbox";
-    checkboxElement.checked = note.examSoon;
-    checkboxElement.classList.add("exam-checkbox");
-
-    // Чекбокс «Вивчено». Ним користувач змінює дані,
-    // від яких залежить прогрес бар, тобто анімація пов'язана з реальною дією.
-    // Boolean() потрібен, бо старі записи в базі можуть не мати поля learned.
-    const learnedLabel = document.createElement("label");
-    const learnedCheckbox = document.createElement("input");
-    learnedCheckbox.type = "checkbox";
-    learnedCheckbox.checked = Boolean(note.learned);
-    learnedCheckbox.classList.add("learned-checkbox");
-    learnedLabel.append(learnedCheckbox, " Вивчено");
-
-    // Кнопка видалення конспекту
-    const deleteButton = document.createElement("button");
-    deleteButton.textContent = "Видалити";
-    deleteButton.classList.add("delete-btn");
-
-    // Додаємо і "card", і "user-card"
-    cardElement.classList.add("card", "user-card");
-    // ВИПРАВЛЕНО: замість індексу використовується id, щоб фільтр не ламав чекбокс і видалення
-    cardElement.dataset.id = note.id;
-
-    if (note.examSoon) {
-      cardElement.classList.add("exam-soon");
-    }
-
-    cardElement.append(
-      titleElement,
-      subjectElement,
-      pagesElement,
-      checkboxElement,
-      learnedLabel, //додаємо чекбокс «Вивчено» в картку
-      deleteButton,
-    );
-
-    listContainer.append(cardElement);
+    listContainer.append(createNoteCard(array[i]));
   }
   updateCount();
   // Після кожного перемальовування списку оновлюємо прогрес-бар.
@@ -390,8 +402,8 @@ async function refreshList() {
   try {
     notesData = await getAllItems();
     // ВИПРАВЛЕНО: заповнюємо фільтр і рендеримо відфільтрований масив (було renderCard(notesData))
-    updateFilterOptions();
-    renderCard(getFilteredNotes());
+    // фільтр і рендер списку перенесено в onDataChange головної view (див. homeView)
+    onDataChange();
   } catch (error) {
     console.error("Не вдалося завантажити конспекти з IndexedDB:", error);
   }
@@ -399,10 +411,12 @@ async function refreshList() {
 
 // Обробник відправки форми: збирає дані з полів, створює об'єкт з унікальним id,
 // записує його в IndexedDB, оновлює інтерфейс і очищує форму
-const form = document.querySelector("#add-note-form");
+// форма є в шаблоні головної сторінки, тому знаходиться в homeView()
+let form = null;
 
 // крок 9: обробник став async, щоб можна було використовувати await
-form.addEventListener("submit", async function (event) {
+// обробник став іменованою функцією, homeView() підключає його при кожному рендері
+const onFormSubmit = async function (event) {
   event.preventDefault();
   const subject = document.querySelector("#subject").value;
   const topic = document.querySelector("#topic").value;
@@ -428,10 +442,11 @@ form.addEventListener("submit", async function (event) {
   } catch (error) {
     console.error("Не вдалося додати конспект:", error);
   }
-});
+};
 
-const topicInput = document.querySelector("#topic");
-topicInput.addEventListener("input", () => {
+//поле теми знаходиться в homeView(), обробник підключається там же
+let topicInput = null;
+const onTopicInput = () => {
   const value = topicInput.value;
   if (value.length > 0 && value.length < 3) {
     topicInput.setCustomValidity("Тема повинна містити щонайменше 3 символи!");
@@ -440,13 +455,14 @@ topicInput.addEventListener("input", () => {
   } else {
     topicInput.setCustomValidity("");
   }
-});
+};
 
 // Обробник зміни чекбоксів. Тепер обробляє
 // Два чекбокси: «Скоро іспит» і «Вивчено»
 // Зміна записується в IndexedDB, потім refreshList() перемальовує картки і
 // викликає updateProgress(), тому смуга прогресу плавно змінює ширину
-listContainer.addEventListener("change", async (event) => {
+//обробник іменований, щоб його можна було підключити і до списку, і до сторінки деталей
+const onCardsChange = async (event) => {
   const isExam = event.target.classList.contains("exam-checkbox");
   const isLearned = event.target.classList.contains("learned-checkbox");
   if (!isExam && !isLearned) return;
@@ -471,11 +487,11 @@ listContainer.addEventListener("change", async (event) => {
   } catch (error) {
     console.error("Не вдалося оновити конспект:", error);
   }
-});
+};
 
 // Обробник кліку на кнопку "Видалити": видаляє запис
 // з IndexedDB й перемальовує список
-listContainer.addEventListener("click", async (event) => {
+const onCardsClick = async (event) => {
   if (event.target.classList.contains("delete-btn")) {
     const card = event.target.closest(".card");
     if (!card || card.dataset.id === undefined) return;
@@ -488,12 +504,17 @@ listContainer.addEventListener("click", async (event) => {
     //після видалення refreshList перераховує і прогрес-бар)
     try {
       await deleteItem(note.id);
+      //якщо конспект видалено зі сторінки деталей — повертаємось на головну
+      if (getPath().startsWith("/notes/")) {
+        navigate("/");
+        return;
+      }
       await refreshList();
     } catch (error) {
       console.error("Не вдалося видалити конспект:", error);
     }
   }
-});
+};
 
 // Назва бази даних
 const DB_NAME = "notesOrganizerDB";
@@ -605,7 +626,12 @@ async function migrateFromLocalStorage() {
   }
 }
 
-function showDbError(message) {
+// повідомлення зберігається, щоб renderRoute() показував його після кожного перемальовування #app
+let dbErrorMessage = "";
+
+function showDbError(message = dbErrorMessage) {
+  dbErrorMessage = message;
+  if (!message) return;
   let box = document.querySelector("#db-error");
   if (!box) {
     box = document.createElement("div");
@@ -617,10 +643,234 @@ function showDbError(message) {
   }
   box.textContent = message;
 
-  const submitButton = form.querySelector('button[type="submit"]');
+  // форма тепер у #app і може бути відсутня на іншій сторінці
+  const submitButton = app.querySelector(
+    '#add-note-form button[type="submit"]',
+  );
   if (submitButton) {
     submitButton.disabled = true;
   }
+}
+
+// таблиця маршрутів (hash-роутинг). Кожен запис — шаблон шляху та view-функція.
+// Сегмент виду ":name" — параметр, matchRoute() передає його значення у view.
+// "/" — головна (форма, прогрес, список з IndexedDB), "/subjects[/:subject]" — розділи
+// предметів, "/notes/:id" — сторінка деталей одного конспекту.
+const routes = [
+  { path: "/", view: homeView },
+  { path: "/subjects", view: subjectsView },
+  { path: "/subjects/:subject", view: subjectsView },
+  { path: "/notes/:id", view: noteDetailView },
+];
+
+// Повертає поточний шлях із location.hash: "#/notes/5" -> "/notes/5", порожній хеш -> "/"
+function getPath() {
+  let path = location.hash.slice(1).split("?")[0];
+  if (!path.startsWith("/")) path = "/" + path;
+  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+  return path;
+}
+
+// Безпечне декодування параметра (некоректний %-рядок не ламає роутер)
+function decodeParam(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch (error) {
+    return value;
+  }
+}
+
+//Порівнює шлях з патернами routes, витягує параметри
+// Повертає { route, params } або null, якщо жоден маршрут не підійшов
+function matchRoute(path) {
+  const pathParts = path.split("/").filter(Boolean);
+  for (const route of routes) {
+    const patternParts = route.path.split("/").filter(Boolean);
+    if (patternParts.length !== pathParts.length) continue;
+
+    const params = {};
+    const matches = patternParts.every((part, i) => {
+      if (part.startsWith(":")) {
+        params[part.slice(1)] = decodeParam(pathParts[i]);
+        return true;
+      }
+      return part === pathParts[i];
+    });
+    if (matches) return { route, params };
+  }
+  return null;
+}
+
+// перехід на маршрут через зміну хеша (hashchange перемалює вміст)
+function navigate(path) {
+  if (getPath() === path) {
+    renderRoute(); // той самий хеш події не викличе, тому малюємо вручну
+  } else {
+    location.hash = path;
+  }
+}
+
+// Очищує #app і вставляє в нього копію шаблону з index.html
+function renderTemplate(templateId) {
+  app.innerHTML = "";
+  app.append(document.querySelector(`#${templateId}`).content.cloneNode(true));
+}
+
+// React-острівець (index.html) монтується в контейнер, який з'являється лише на сторінці предметів
+let reactRoot = null;
+function mountReact(container) {
+  const mount = () => {
+    if (container.isConnected) reactRoot = window.mountAlgebraApp(container);
+  };
+  if (window.mountAlgebraApp) {
+    mount();
+  } else {
+    window.addEventListener("react-ready", mount, { once: true });
+  }
+}
+
+// view головної — очищає #app, клонує шаблон і викликає наявні функції рендеру
+// (renderCard, updateProgress, фільтр) з даними з IndexedDB
+function homeView() {
+  renderTemplate("tpl-home");
+  listContainer = app.querySelector("#notes-list");
+  form = app.querySelector("#add-note-form");
+  topicInput = app.querySelector("#topic");
+  progressBar = app.querySelector("#progress-bar");
+  progressTrack = app.querySelector("#progress-track");
+  progressText = app.querySelector("#progress-text");
+  progressTitle = app.querySelector("#progress-title");
+
+  listContainer.before(filterSelect);
+  form.addEventListener("submit", onFormSubmit);
+  topicInput.addEventListener("input", onTopicInput);
+  listContainer.addEventListener("change", onCardsChange);
+  listContainer.addEventListener("click", onCardsClick);
+
+  onDataChange = () => {
+    updateFilterOptions();
+    renderCard(getFilteredNotes());
+  };
+  refreshList();
+}
+
+// view предметів — статичні розділи з шаблону; з параметром :subject лишається один розділ
+function subjectsView({ subject } = {}) {
+  renderTemplate("tpl-subjects");
+  if (subject) {
+    app.querySelectorAll("section").forEach((section) => {
+      if (section.id !== subject) section.remove();
+    });
+    if (!app.querySelector("section")) {
+      notFoundView();
+      return;
+    }
+  }
+  onDataChange = updateCount;
+  refreshList();
+
+  const algebraContainer = app.querySelector("#algebra-app");
+  if (algebraContainer) mountReact(algebraContainer);
+}
+
+// сторінка деталей — знаходить запис за id серед даних з IndexedDB і показує тільки його
+function noteDetailView({ id }) {
+  app.textContent = "Завантаження...";
+
+  onDataChange = () => {
+    updateCount();
+    app.innerHTML = "";
+    const note = notesData.find((n) => String(n.id) === id);
+    if (!note) {
+      notFoundView();
+      return;
+    }
+
+    const section = document.createElement("section");
+    const backLink = document.createElement("a");
+    backLink.href = "#/";
+    backLink.dataset.link = "";
+    backLink.className = "back-link";
+    backLink.textContent = "← До списку конспектів";
+
+    const heading = document.createElement("h2");
+    heading.textContent = "Деталі конспекту";
+
+    // Повторно використовуємо createNoteCard() — без посилання на саму себе
+    const cardHolder = document.createElement("div");
+    cardHolder.append(createNoteCard(note, false));
+    cardHolder.addEventListener("change", onCardsChange);
+    cardHolder.addEventListener("click", onCardsClick);
+
+    const info = document.createElement("p");
+    info.textContent =
+      `Предмет: ${note.subject}. Кількість сторінок: ${note.pages}. ` +
+      `${note.examSoon ? "Скоро іспит." : "Іспит не скоро."} ` +
+      `${note.learned ? "Конспект вивчено." : "Конспект ще не вивчено."}`;
+
+    section.append(backLink, heading, cardHolder, info);
+    app.append(section);
+  };
+  refreshList();
+}
+
+// сторінка «Не знайдено» з посиланням на головну (замість порожнього екрана)
+function notFoundView() {
+  app.innerHTML = "";
+  const section = document.createElement("section");
+  const heading = document.createElement("h2");
+  heading.textContent = "Сторінку не знайдено";
+  const text = document.createElement("p");
+  text.textContent = `Маршруту «${getPath()}» не існує або запис видалено.`;
+  const homeLink = document.createElement("a");
+  homeLink.href = "#/";
+  homeLink.dataset.link = "";
+  homeLink.className = "back-link";
+  homeLink.textContent = "На головну";
+  section.append(heading, text, homeLink);
+  app.append(section);
+}
+
+// Малює сторінку, що відповідає поточному шляху
+function renderRoute() {
+  // прибираємо React-дерево попередньої сторінки та стан її view
+  if (reactRoot) {
+    reactRoot.unmount();
+    reactRoot = null;
+  }
+  listContainer = null;
+  onDataChange = () => {};
+
+  const match = matchRoute(getPath());
+  if (match) {
+    match.route.view(match.params);
+  } else {
+    notFoundView();
+  }
+  showDbError(); // повертає повідомлення про помилку БД, якщо воно було
+  window.scrollTo(0, 0);
+}
+
+// перехоплення кліків по a[data-link] і реакція на hashchange
+// (кнопки «назад»/«вперед» браузера теж змінюють хеш)
+function startRouter() {
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[data-link]");
+    if (!link) return;
+    // Ctrl/Cmd-клік та середня кнопка лишаємо браузеру (відкриття у новій вкладці)
+    if (
+      event.button !== 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    event.preventDefault();
+    navigate(link.getAttribute("href").replace(/^#/, ""));
+  });
+  window.addEventListener("hashchange", renderRoute);
+  renderRoute();
 }
 
 // async function init() {
@@ -638,11 +888,13 @@ async function init() {
         "вимкнено IndexedDB або увімкнено режим приватного перегляду. " +
         "Спробуйте відкрити сторінку в звичайному режимі.",
     );
+    startRouter(); //навіть без БД показуємо сторінки
     return;
   }
 
   await migrateFromLocalStorage();
-  await refreshList();
+  // замість refreshList() запускаємо роутер, а дані підтягує view
+  startRouter();
 }
 
 init();
