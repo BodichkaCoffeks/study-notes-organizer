@@ -3,7 +3,7 @@ const path = require("path");
 const notes = require("./data/notes.json");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 // Роздача статичних файлів (index.html, css, js) з теки public
 app.use(express.static(path.join(__dirname, "public")));
 
